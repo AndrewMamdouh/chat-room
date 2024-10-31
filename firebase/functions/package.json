@@ -1,6 +1,7 @@
 {
   "name": "functions",
   "scripts": {
+    "emu": "npm run build && firebase emulators:start",
     "lint": "eslint --ext .ts .",
     "fix": "eslint --fix --ext .ts .",
     "build": "npm run clean && tsc",

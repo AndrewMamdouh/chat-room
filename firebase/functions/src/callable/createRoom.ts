@@ -3,12 +3,13 @@ import {firestore} from "../main.js";
 import {FieldValue, Filter} from "firebase-admin/firestore";
 
 type CreateRoomData = {
+  id: string;
   person: string;
-}
+};
 
 export const createRoom = onCall<CreateRoomData>(
-  {region: "us-central-1"},
-  async ({auth, data}) => {
+  {region: "us-central1", cors: true},
+  async ({auth, data: {person, id}}) => {
     try {
       // Checking that the user calling the Cloud Function is authenticated
       if (!auth) {
@@ -23,10 +24,18 @@ export const createRoom = onCall<CreateRoomData>(
 
       const chatExists = await firestore
         .collection("room")
-        .where(Filter.or(
-          Filter.where("person1", "==", callerUid),
-          Filter.where("person2", "==", callerUid),
-        ))
+        .where(
+          Filter.or(
+            Filter.and(
+              Filter.where("person1", "==", callerUid),
+              Filter.where("person2", "==", person)
+            ),
+            Filter.and(
+              Filter.where("person1", "==", person),
+              Filter.where("person2", "==", callerUid)
+            )
+          )
+        )
         .get();
 
       if (chatExists.size) {
@@ -39,8 +48,9 @@ export const createRoom = onCall<CreateRoomData>(
 
       await firestore.collection("room").add({
         created_at: FieldValue.serverTimestamp(),
+        id,
         person1: callerUid,
-        person2: data.person,
+        person2: person,
         messages: [],
       });
     } catch (error) {

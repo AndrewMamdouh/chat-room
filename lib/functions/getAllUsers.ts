@@ -1,22 +1,26 @@
-import { httpsCallable } from 'firebase/functions'
+import { httpsCallable } from "firebase/functions";
 
-import { functions } from '../firebase'
+import { functions } from "../firebase";
 
 export type GetAllUsersResponse = {
-    displayName?: string;
-    uid: string;
-    photoURL?: string;
-}
+  displayName: string;
+  uid: string;
+  photoURL?: string;
+};
 
-const GetAllUsersCloudFunction = httpsCallable<undefined, GetAllUsersResponse[]>(functions, 'getAllUsers')
+const GetAllUsersCloudFunction = httpsCallable<
+  undefined,
+  GetAllUsersResponse[]
+>(functions, "getAllUsers");
 
 const getAllUsers = async () => {
   try {
     const response = await GetAllUsersCloudFunction();
-    return response.data
+    return response.data;
   } catch (err) {
-    console.log(err)
+    console.log(err);
+    return [];
   }
-}
+};
 
-export default getAllUsers
+export default getAllUsers;

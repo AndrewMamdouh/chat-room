@@ -3,15 +3,15 @@ import {firestore} from "../main.js";
 import {FieldValue, Filter} from "firebase-admin/firestore";
 
 type CreateMessageData = {
-  person1: string;
-  person2: string;
-  message: string;
+  id: string;
+  receiver: string;
+  content: string;
   type: "image" | "text" | "audio"
 }
 
 export const createMessage = onCall<CreateMessageData>(
-  {region: "us-central-1"},
-  async ({auth, data}) => {
+  {region: "us-central1", cors: true},
+  async ({auth, data: {id, receiver, content, type}}) => {
     try {
       // Checking that the user calling the Cloud Function is authenticated
       if (!auth) {
@@ -23,14 +23,6 @@ export const createMessage = onCall<CreateMessageData>(
       }
 
       const callerUid = auth.uid;
-
-      if (![data.person1, data.person2].includes(callerUid)) {
-        throw new HttpsError(
-          "permission-denied",
-          "The user is not authorized.",
-          "The user is not authorized."
-        );
-      }
 
       const roomRef = await firestore
         .collection("room")
@@ -44,9 +36,11 @@ export const createMessage = onCall<CreateMessageData>(
       firestore.runTransaction(async (transaction) => {
         transaction.update(roomRef.docs[0].ref, {
           messages: FieldValue.arrayUnion({
-            content: data.message,
+            id,
+            content,
             sender: callerUid,
-            type: data.type,
+            receiver,
+            type,
           }),
         });
       });

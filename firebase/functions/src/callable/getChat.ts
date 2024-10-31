@@ -1,15 +1,14 @@
 import {onCall, HttpsError} from "firebase-functions/v2/https";
-import {firestore} from "../main.js";
+import {firestore, auth as Auth} from "../main.js";
 import {Filter} from "firebase-admin/firestore";
 
 type GetChatData = {
-  person1: string;
-  person2: string;
-}
+  person: string;
+};
 
 export const getChat = onCall<GetChatData>(
-  {region: "us-central-1"},
-  async ({auth, data}) => {
+  {region: "us-central1", cors: true},
+  async ({auth, data: {person}}) => {
     try {
       // Checking that the user calling the Cloud Function is authenticated
       if (!auth) {
@@ -22,20 +21,20 @@ export const getChat = onCall<GetChatData>(
 
       const callerUid = auth.uid;
 
-      if (![data.person1, data.person2].includes(callerUid)) {
-        throw new HttpsError(
-          "permission-denied",
-          "The user is not authorized.",
-          "The user is not authorized."
-        );
-      }
-
       const roomExists = await firestore
         .collection("room")
-        .where(Filter.or(
-          Filter.where("person1", "==", callerUid),
-          Filter.where("person2", "==", callerUid),
-        ))
+        .where(
+          Filter.or(
+            Filter.and(
+              Filter.where("person1", "==", callerUid),
+              Filter.where("person2", "==", person)
+            ),
+            Filter.and(
+              Filter.where("person1", "==", person),
+              Filter.where("person2", "==", callerUid)
+            )
+          )
+        )
         .get();
 
       if (!roomExists.size) {
@@ -46,9 +45,34 @@ export const getChat = onCall<GetChatData>(
         );
       }
 
-      const roomData = roomExists.docs[0].data();
+      let {messages, id} = roomExists.docs[0].data();
 
-      return roomData.messages;
+      if (messages.length) {
+        const callerUidDisplayName = (
+          await Auth.getUser(
+            callerUid
+          )
+        ).displayName;
+        const otherPersonDisplayName = (
+          await Auth.getUser(
+            messages[0].sender === callerUid ?
+              messages[0].receiver : messages[0].sender
+          )
+        ).displayName;
+        messages = messages.map((
+          {receiver, sender, ...rest}: Record<string, unknown>
+        ) => ({
+          receiverId: receiver,
+          receiver: receiver === callerUid ?
+            callerUidDisplayName : otherPersonDisplayName,
+          senderId: sender,
+          sender: sender === callerUid ?
+            callerUidDisplayName : otherPersonDisplayName,
+          ...rest,
+        }));
+      }
+
+      return {id, messages};
     } catch (error) {
       console.log(error);
       throw new HttpsError(

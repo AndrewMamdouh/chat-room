@@ -1,27 +1,28 @@
-import { httpsCallable } from 'firebase/functions'
+import { httpsCallable } from "firebase/functions";
 
-import { functions } from '../firebase'
+import { functions } from "../firebase";
 
 export type CreateRoomRequest = {
-    person: string;
-}
+  id: string;
+  person: string;
+};
 
 export type CreateRoomResponse = {
-  status: string
-}
+  status: string;
+};
 
 const CreateRoomCloudFunction = httpsCallable<
-CreateRoomRequest,
-CreateRoomResponse
->(functions, 'createRoom')
+  CreateRoomRequest,
+  CreateRoomResponse
+>(functions, "createRoom");
 
 const createRoom = async (data: CreateRoomRequest) => {
   try {
-    const response = await CreateRoomCloudFunction(data)
-    return response.data
+    const response = await CreateRoomCloudFunction(data);
+    return response.data;
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
-}
+};
 
-export default createRoom
+export default createRoom;

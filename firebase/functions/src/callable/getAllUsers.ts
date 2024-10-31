@@ -3,7 +3,7 @@ import {auth as Auth} from "../main.js";
 
 
 export const getAllUsers = onCall(
-  {region: "us-central-1"},
+  {region: "us-central1", cors: true},
   async ({auth}) => {
     try {
       // Checking that the user calling the Cloud Function is authenticated
@@ -15,12 +15,12 @@ export const getAllUsers = onCall(
         );
       }
       const allUsers = await Auth.listUsers();
-      const nomalizedUsers = allUsers.users.map(
+      const normalizedUsers = allUsers.users.map(
         ({displayName, uid, photoURL}) => ({
           displayName, uid, photoURL,
         })
       );
-      return nomalizedUsers;
+      return normalizedUsers;
     } catch (error) {
       console.log(error);
       throw new HttpsError(

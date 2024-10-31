@@ -1,11 +1,13 @@
+import "react-toastify/dist/ReactToastify.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@Providers";
+import { ToastContainer } from "react-toastify";
 
 const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter'
+  subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -20,12 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} font-inter`}
-      >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+      <body className={`${inter.variable} font-inter`}>
+        <AuthProvider>{children}</AuthProvider>
+        <ToastContainer />
       </body>
     </html>
   );
