@@ -56,13 +56,13 @@ const ChatPage = () => {
     getActiveChat();
   }, [getActiveChat]);
 
+  console.log(messages)
+
   useEffect(() => {
     const q = query(collection(db, "room"), where("id", "==", activeChatId));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      setMessages(querySnapshot.docs[0]?.data().messages || []);
-    });
+    const unsubscribe = onSnapshot(q, getActiveChat);
     return () => unsubscribe();
-  }, [activeChatId]);
+  }, [activeChatId, getActiveChat]);
 
   const uploadFile = async (file: File, fileType: "image" | "audio") => {
     if (!file || !activeChat) return;
@@ -104,10 +104,7 @@ const ChatPage = () => {
   };
 
   const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.length) {
-      console.log(e.target.files[0]);
-      uploadFile(e.target.files[0], "image");
-    }
+    if (e.target.files?.length) uploadFile(e.target.files[0], "image");
   };
 
   return (
@@ -147,7 +144,7 @@ const ChatPage = () => {
                       variant={senderId === user?.uid ? "sent" : "received"}
                     >
                       <Avatar
-                        name={senderId === user?.uid ? sender : receiver}
+                        name={sender}
                         round
                         size="32"
                       />

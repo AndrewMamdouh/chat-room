@@ -23,6 +23,9 @@ const LoginPage = () => {
             break;
           case "auth/invalid-password":
             toast.error("Password is invalid.");
+            break;
+          case "auth/invalid-credential":
+            toast.error("Credentials are invalid.");
         }
       } else
         toast.error(

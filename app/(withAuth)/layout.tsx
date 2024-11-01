@@ -13,7 +13,10 @@ export default function WithAuthLayout({
 
   if (isLoading) return <div>Loading</div>;
 
-  if (!user) return router.push("/login");
+  if (!user) {
+    router.push("/login");
+    return null;
+  }
 
   return children;
 }

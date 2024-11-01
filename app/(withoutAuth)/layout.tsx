@@ -13,7 +13,10 @@ export default function WithoutAuthLayout({
 
   if (isLoading) return <div>Loading</div>;
 
-  if (user) return router.push("/chat");
+  if (user) {
+    router.push("/chat");
+    return null;
+  }
 
   return children;
 }
