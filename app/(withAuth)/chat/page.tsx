@@ -56,8 +56,6 @@ const ChatPage = () => {
     getActiveChat();
   }, [getActiveChat]);
 
-  console.log(messages)
-
   useEffect(() => {
     const q = query(collection(db, "room"), where("id", "==", activeChatId));
     const unsubscribe = onSnapshot(q, getActiveChat);
@@ -81,12 +79,10 @@ const ChatPage = () => {
   };
 
   const onRecordingComplete = (blob: Blob) => {
-    console.log(blob);
     const currentTime = new Date().getTime();
     const file = new File([blob], `audio-${currentTime}.webm`, {
       type: "audio/webm",
     });
-    console.log(file);
     uploadFile(file, "audio");
   };
 
@@ -116,7 +112,7 @@ const ChatPage = () => {
             .map(({ uid, displayName }) => (
               <div
                 key={uid}
-                onClick={() => setActiveChat(uid)}
+                onClick={() => { console.log('testing', uid); setActiveChat(uid)}}
                 className={`border border-gray-200 rounded-lg shadow flex gap-x-4 items-center p-2 cursor-pointer ${
                   activeChat === uid
                     ? "bg-black text-white hover:bg-black"
@@ -138,7 +134,7 @@ const ChatPage = () => {
             <>
               <ChatMessageList>
                 {messages.map(
-                  ({ id, content, senderId, sender, receiver, type }) => (
+                  ({ id, content, senderId, sender, type }) => (
                     <ChatBubble
                       key={id}
                       variant={senderId === user?.uid ? "sent" : "received"}

@@ -26,12 +26,24 @@ export const createMessage = onCall<CreateMessageData>(
 
       const roomRef = await firestore
         .collection("room")
-        .where(
-          Filter.or(
+        .where(Filter.or(
+          Filter.and(
             Filter.where("person1", "==", callerUid),
+            Filter.where("person2", "==", receiver)
+          ),
+          Filter.and(
+            Filter.where("person1", "==", receiver),
             Filter.where("person2", "==", callerUid)
-          ))
+          )))
         .get();
+
+      if (!roomRef.size) {
+        throw new HttpsError(
+          "not-found",
+          "There is no chat room.",
+          "There is no chat room."
+        );
+      }
 
       firestore.runTransaction(async (transaction) => {
         transaction.update(roomRef.docs[0].ref, {
