@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="scrollbar-thumb-neutral-800 scrollbar-track-neutral-300">
       <body className={`${inter.variable} font-inter`}>
         <AuthProvider>{children}</AuthProvider>
         <ToastContainer />

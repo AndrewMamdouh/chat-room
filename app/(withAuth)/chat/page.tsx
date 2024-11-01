@@ -104,8 +104,8 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="h-full grid grid-cols-12 gap-4 p-4">
-      <div className="col-span-2 md:col-span-4">
+    <div className="h-full flex gap-4 p-4">
+      <div className="shrink-0">
         <div className="flex flex-col gap-y-4 h-full">
           {allUsers
             .filter(({ uid }) => uid !== user?.uid)
@@ -128,11 +128,10 @@ const ChatPage = () => {
           </Button>
         </div>
       </div>
-      <div className="col-span-10 md:col-span-8">
-        <div className="flex flex-col h-full">
+      <div className="grow flex flex-col">
           {activeChat ? (
             <>
-              <ChatMessageList>
+              <ChatMessageList className="overflow-y-auto scrollbar-thin grow">
                 {messages.map(
                   ({ id, content, senderId, sender, type }) => (
                     <ChatBubble
@@ -217,7 +216,6 @@ const ChatPage = () => {
               Choose chat to start
             </span>
           )}
-        </div>
       </div>
     </div>
   );
