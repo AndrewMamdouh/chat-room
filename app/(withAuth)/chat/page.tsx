@@ -23,6 +23,7 @@ import createMessage from "@Lib/functions/createMessage";
 import { v4 as uuidv4 } from "uuid";
 
 const ChatPage = () => {
+  const chatWindowRef = useRef<HTMLDivElement>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
   const [allUsers, setAllUsers] = useState<GetAllUsersResponse[]>([]);
@@ -55,6 +56,15 @@ const ChatPage = () => {
   useEffect(() => {
     getActiveChat();
   }, [getActiveChat]);
+
+  useEffect(() => {
+    if (chatWindowRef.current) {
+      chatWindowRef.current.scrollTo({
+        top: chatWindowRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
 
   useEffect(() => {
     const q = query(collection(db, "room"), where("id", "==", activeChatId));
@@ -131,7 +141,7 @@ const ChatPage = () => {
       <div className="grow flex flex-col">
           {activeChat ? (
             <>
-              <ChatMessageList className="overflow-y-auto scrollbar-thin grow">
+              <ChatMessageList ref={chatWindowRef} className="overflow-y-auto scrollbar-thin grow">
                 {messages.map(
                   ({ id, content, senderId, sender, type }) => (
                     <ChatBubble
@@ -145,7 +155,7 @@ const ChatPage = () => {
                       />
                       <ChatBubbleMessage>
                         {type === "image" ? (
-                          <img src={content} className="w-full h-auto" />
+                          <img src={content} className="w-full h-auto" alt="chat image" />
                         ) : type === "audio" ? (
                           <audio controls>
                             <source src={content} type="audio/webm" />
@@ -181,7 +191,6 @@ const ChatPage = () => {
                     <Paperclip className="size-4" />
                     <span className="sr-only">Attach file</span>
                   </Button>
-
                   <Button variant="ghost" size="icon" type="button">
                     <AudioRecorder
                       onRecordingComplete={onRecordingComplete}
@@ -198,7 +207,6 @@ const ChatPage = () => {
                     />
                     <span className="sr-only">Use Microphone</span>
                   </Button>
-
                   <Button
                     size="sm"
                     className="ml-auto gap-1.5"
